@@ -22,8 +22,8 @@ export default function FeedPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data.user?.id ?? null);
+    supabase.auth.getUser().then((result) => {
+      setCurrentUserId(result.data.user?.id ?? null);
     });
 
     fetch("/api/feed")

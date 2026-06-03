@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Camera, LoaderCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 

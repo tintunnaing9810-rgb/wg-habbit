@@ -7,6 +7,17 @@ import { StreakBadge } from "@/components/streak-badge";
 import { formatFrequency } from "@/lib/habits";
 import type { Habit } from "@/types/database";
 
+type HabitFormData = {
+  name: string;
+  emoji: string;
+  category: "Health & Body" | "Mind & Focus" | "No Bad Habits" | "Custom";
+  frequency: "daily" | "weekdays" | "x_per_week";
+  frequency_target: number;
+  target_type: "yes_no" | "quantity";
+  target_quantity: number | null;
+  is_public: boolean;
+};
+
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +31,7 @@ export default function HabitsPage() {
       const res = await fetch("/api/habits");
       if (!res.ok) return;
       const json = await res.json();
-      setHabits(json.habits?.map((h: { habit: Habit }) => h.habit) ?? []);
+      setHabits((json.habits as { habit: Habit }[])?.map((h) => h.habit) ?? []);
     } catch {
       // ignore
     } finally {
@@ -32,7 +43,7 @@ export default function HabitsPage() {
     fetchHabits();
   }, [fetchHabits]);
 
-  async function handleSave(data: Parameters<typeof HabitForm>[0]["onSave"] extends (d: infer D) => unknown ? D : never) {
+  async function handleSave(data: HabitFormData) {
     const method = editingHabit ? "PATCH" : "POST";
     const url = editingHabit ? `/api/habits/${editingHabit.id}` : "/api/habits";
 

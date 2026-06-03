@@ -78,8 +78,8 @@ export default function DashboardPage() {
   }
 
   const todayStr = getIctDateString();
-  const incomplete = data?.habits.filter((h) => h.todayLog === null) ?? [];
-  const completed = data?.habits.filter((h) => h.todayLog !== null) ?? [];
+  const incomplete = data?.habits.filter((h: HabitWithLog) => h.todayLog === null) ?? [];
+  const completed = data?.habits.filter((h: HabitWithLog) => h.todayLog !== null) ?? [];
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
           </p>
 
           {/* Incomplete habits */}
-          {incomplete.map(({ habit, todayLog }) => (
+          {(incomplete as HabitWithLog[]).map(({ habit, todayLog }) => (
             <HabitItem
               key={habit.id}
               habit={habit}
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                   Completed
                 </p>
               )}
-              {completed.map(({ habit, todayLog }) => (
+              {(completed as HabitWithLog[]).map(({ habit, todayLog }) => (
                 <HabitItem
                   key={habit.id}
                   habit={habit}

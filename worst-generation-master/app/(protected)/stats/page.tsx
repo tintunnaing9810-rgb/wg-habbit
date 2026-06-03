@@ -148,7 +148,7 @@ export default function StatsPage() {
               userId={data.userId}
               name={data.userName}
               currentAvatarUrl={data.avatarUrl}
-              onUpdate={(url) => setData((prev) => prev ? { ...prev, avatarUrl: url } : null)}
+              onUpdate={(url) => setData((prev: StatsData | null) => prev ? { ...prev, avatarUrl: url } : null)}
             />
             <div className="flex-1 min-w-0">
               {editingName ? (

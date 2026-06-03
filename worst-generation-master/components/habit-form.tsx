@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import type { Habit } from "@/types/database";
 
@@ -94,7 +94,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-5 space-y-5">
+        <form id="habit-form" onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-5 space-y-5">
           {/* Name + Emoji */}
           <div className="flex gap-3">
             <div className="flex-1">
@@ -267,7 +267,6 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
             type="submit"
             disabled={pending}
             className="btn-primary flex-1"
-            onClick={handleSubmit}
           >
             {pending && <LoaderCircle className="h-4 w-4 animate-spin" />}
             {pending ? "Saving..." : habit ? "Save Changes" : "Add Habit"}
