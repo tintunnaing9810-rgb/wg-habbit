@@ -97,7 +97,7 @@ body {
 .label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 4px; }
 
 /* Bottom safe area for mobile nav */
-.pb-safe { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.pb-safe { padding-bottom: calc(84px + max(env(safe-area-inset-bottom, 0px), 8px)); }
 
 /* Streak badge */
 .streak-fire { color: #F97316; }

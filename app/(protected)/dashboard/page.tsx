@@ -82,7 +82,7 @@ export default function DashboardPage() {
   const completed = data?.habits.filter((h: HabitWithLog) => h.todayLog !== null) ?? [];
 
   return (
-    <div className="px-4 py-6 space-y-6">
+    <div className="px-4 pt-3 pb-6 space-y-4">
       {/* Header */}
       <div>
         <p className="text-sm text-slate-500">{formatTodayICT()}</p>

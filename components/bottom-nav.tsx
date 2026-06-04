@@ -16,30 +16,31 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-3"
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 8px)" }}
     >
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
-        {tabs.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-[11px] font-medium transition-colors ${
-                active ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              <Icon className="h-5 w-5" />
-              <span>{label}</span>
-              {active && (
-                <span className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-indigo-600" />
-              )}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+      <nav className="w-full max-w-lg rounded-2xl border border-slate-100 bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/60 px-2 py-1.5">
+        <div className="flex items-center justify-around">
+          {tabs.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-semibold rounded-xl transition-all ${
+                  active
+                    ? "text-indigo-600 bg-indigo-50"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <Icon className={`h-5 w-5 ${active ? "stroke-[2.5]" : "stroke-2"}`} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }

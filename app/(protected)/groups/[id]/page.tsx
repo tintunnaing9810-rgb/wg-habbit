@@ -131,7 +131,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ id: stri
   const isOwner = group.role === "owner";
 
   return (
-    <div className="px-4 py-6 space-y-5">
+    <div className="px-4 pt-3 pb-6 space-y-4">
       {/* Header */}
       <div>
         <button onClick={() => router.push("/groups")} className="flex items-center gap-1 text-sm text-slate-500 mb-3 hover:text-indigo-600 transition-colors">

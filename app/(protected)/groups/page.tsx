@@ -69,7 +69,7 @@ export default function GroupsPage() {
   }
 
   return (
-    <div className="px-4 py-6 space-y-5">
+    <div className="px-4 pt-3 pb-6 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
