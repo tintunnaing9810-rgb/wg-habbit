@@ -9,13 +9,7 @@ export default async function HomePage() {
   if (user) redirect("/dashboard");
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-white">
-      {/* Subtle background accent */}
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[160px]"
-          style={{ background: "rgba(79,70,229,0.06)" }} />
-      </div>
-
-      <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-8">
         {/* Nav */}
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
