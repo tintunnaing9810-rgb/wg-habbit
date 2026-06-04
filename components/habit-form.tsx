@@ -16,6 +16,8 @@ const COMMON_EMOJIS = [
 
 const CATEGORIES: HabitCategory[] = ["Health & Body", "Mind & Focus", "No Bad Habits", "Custom"];
 
+const UNITS = ["min", "hrs", "pages", "glasses", "km", "miles", "reps", "steps", "cal", "times"];
+
 type HabitFormData = {
   name: string;
   emoji: string;
@@ -24,6 +26,7 @@ type HabitFormData = {
   frequency_target: number;
   target_type: TargetType;
   target_quantity: number | null;
+  target_unit: string | null;
   is_public: boolean;
 };
 
@@ -46,6 +49,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
   const [targetQuantity, setTargetQuantity] = useState<string>(
     habit?.target_quantity ? String(habit.target_quantity) : "",
   );
+  const [targetUnit, setTargetUnit] = useState<string>(habit?.target_unit ?? "min");
   const [isPublic, setIsPublic] = useState(habit?.is_public ?? false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -65,6 +69,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
         frequency_target: frequency === "x_per_week" ? frequencyTarget : 1,
         target_type: targetType,
         target_quantity: targetType === "quantity" && targetQuantity ? parseInt(targetQuantity) : null,
+        target_unit: targetType === "quantity" ? targetUnit : null,
         is_public: isPublic,
       });
     } catch (err: unknown) {
@@ -215,16 +220,37 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
             </div>
 
             {targetType === "quantity" && (
-              <div className="mt-2 flex items-center gap-3">
-                <label className="text-sm text-slate-600">Target amount:</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={targetQuantity}
-                  onChange={(e) => setTargetQuantity(e.target.value)}
-                  placeholder="e.g. 8 (glasses)"
-                  className="input !w-36"
-                />
+              <div className="mt-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <label className="label">Target amount</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={targetQuantity}
+                      onChange={(e) => setTargetQuantity(e.target.value)}
+                      placeholder="e.g. 30"
+                      className="input"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="label">Unit</label>
+                    <select
+                      value={targetUnit}
+                      onChange={(e) => setTargetUnit(e.target.value)}
+                      className="input"
+                    >
+                      {UNITS.map((u) => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {targetQuantity && (
+                  <p className="text-xs text-indigo-600 font-medium">
+                    Goal: {targetQuantity} {targetUnit} per session
+                  </p>
+                )}
               </div>
             )}
           </div>

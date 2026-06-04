@@ -67,29 +67,37 @@ export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps
         <p className="text-xs text-slate-400 mt-0.5">
           {habit.category}
           {habit.target_type === "quantity" && habit.target_quantity
-            ? ` · ${habit.target_quantity} target`
+            ? ` · ${habit.target_quantity} ${habit.target_unit ?? ""} goal`
+            : ""}
+          {isCompleted && todayLog?.quantity != null
+            ? ` · logged ${todayLog.quantity} ${habit.target_unit ?? ""}`
             : ""}
         </p>
 
         {/* Quantity input */}
         {showQuantityInput && !isCompleted && (
           <div className="mt-2 flex items-center gap-2">
-            <input
-              type="number"
-              min={1}
-              value={quantityInput}
-              onChange={(e) => setQuantityInput(e.target.value)}
-              placeholder={`Qty (target: ${habit.target_quantity ?? "?"})`}
-              className="input !w-36 !py-1.5 !text-sm"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleCheck();
-                if (e.key === "Escape") {
-                  setShowQuantityInput(false);
-                  setQuantityInput("");
-                }
-              }}
-            />
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                min={1}
+                value={quantityInput}
+                onChange={(e) => setQuantityInput(e.target.value)}
+                placeholder={String(habit.target_quantity ?? "0")}
+                className="input !w-24 !py-1.5 !text-sm"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCheck();
+                  if (e.key === "Escape") {
+                    setShowQuantityInput(false);
+                    setQuantityInput("");
+                  }
+                }}
+              />
+              {habit.target_unit && (
+                <span className="text-sm text-slate-500 font-medium">{habit.target_unit}</span>
+              )}
+            </div>
             <button
               onClick={handleCheck}
               disabled={pending || !quantityInput}

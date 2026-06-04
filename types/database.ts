@@ -41,6 +41,7 @@ export type Database = {
           frequency_target: number;
           target_type: 'yes_no' | 'quantity';
           target_quantity: number | null;
+          target_unit: string | null;
           is_public: boolean;
           current_streak: number;
           best_streak: number;
@@ -58,6 +59,7 @@ export type Database = {
           frequency_target?: number;
           target_type: 'yes_no' | 'quantity';
           target_quantity?: number | null;
+          target_unit?: string | null;
           is_public?: boolean;
           current_streak?: number;
           best_streak?: number;
@@ -72,6 +74,7 @@ export type Database = {
           frequency_target?: number;
           target_type?: 'yes_no' | 'quantity';
           target_quantity?: number | null;
+          target_unit?: string | null;
           is_public?: boolean;
           current_streak?: number;
           best_streak?: number;

@@ -11,6 +11,7 @@ const createHabitSchema = z.object({
   frequency_target: z.number().int().min(1).max(7).default(1),
   target_type: z.enum(["yes_no", "quantity"]),
   target_quantity: z.number().int().min(1).nullable().optional(),
+  target_unit: z.string().max(20).nullable().optional(),
   is_public: z.boolean().default(false),
 });
 

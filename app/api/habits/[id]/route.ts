@@ -10,6 +10,7 @@ const updateHabitSchema = z.object({
   frequency_target: z.number().int().min(1).max(7).optional(),
   target_type: z.enum(["yes_no", "quantity"]).optional(),
   target_quantity: z.number().int().min(1).nullable().optional(),
+  target_unit: z.string().max(20).nullable().optional(),
   is_public: z.boolean().optional(),
   is_active: z.boolean().optional(),
 });
