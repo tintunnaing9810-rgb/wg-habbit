@@ -50,7 +50,7 @@ export default async function HomePage() {
           {[
             { icon: CheckCircle2, color: "text-indigo-600", bg: "bg-indigo-50", title: "Daily Habits", desc: "Build a custom checklist that fits your life. Yes/no or quantity targets." },
             { icon: Flame, color: "text-orange-500", bg: "bg-orange-50", title: "Streak System", desc: "Keep your streak alive with a built-in grace day — one per week to protect your progress." },
-            { icon: Trophy, color: "text-amber-500", bg: "bg-amber-50", title: "Leaderboard", desc: "Weekly and all-time rankings. See who on your friends is the most consistent." },
+            { icon: Trophy, color: "text-amber-500", bg: "bg-amber-50", title: "Leaderboard", desc: "Weekly and all-time rankings. See who among your friends is the most consistent." },
           ].map(({ icon: Icon, color, bg, title, desc }) => (
             <div key={title} className="card p-5">
               <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${bg}`}>
