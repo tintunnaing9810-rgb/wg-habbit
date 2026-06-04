@@ -78,7 +78,7 @@ export default function GroupsPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Groups</h1>
-            <p className="text-xs text-slate-500">Shared habits with your crew</p>
+            <p className="text-xs text-slate-500">Shared habits with your friends</p>
           </div>
         </div>
         <div className="flex gap-2">

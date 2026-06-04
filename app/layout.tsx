@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body", weight: ["400
 
 export const metadata: Metadata = {
   title: "Worst Generation",
-  description: "Track your daily habits and build lasting streaks with your crew.",
+  description: "Track your daily habits and build lasting streaks with your friends.",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Worst Generation" },
 };

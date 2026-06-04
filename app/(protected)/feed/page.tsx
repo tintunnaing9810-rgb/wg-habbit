@@ -148,7 +148,7 @@ export default function FeedPage() {
         <div className="card p-8 text-center">
           <p className="text-3xl mb-3">{hasFollows ? "😴" : "👀"}</p>
           <p className="text-sm font-medium text-slate-700">
-            {hasFollows ? "Nothing from your crew yet" : "No public check-ins yet"}
+            {hasFollows ? "Nothing from your friends yet" : "No public check-ins yet"}
           </p>
           <p className="text-xs text-slate-500 mt-1">
             {hasFollows

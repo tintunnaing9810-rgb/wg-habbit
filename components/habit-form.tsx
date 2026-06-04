@@ -263,7 +263,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
           <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
             <div>
               <p className="text-sm font-medium text-slate-900">Public habit</p>
-              <p className="text-xs text-slate-500">Show check-ins in the crew feed</p>
+              <p className="text-xs text-slate-500">Show check-ins in the friends feed</p>
             </div>
             <button
               type="button"
