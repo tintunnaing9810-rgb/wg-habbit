@@ -114,11 +114,15 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
             </div>
             <div>
               <label className="label">Emoji</label>
-              <div className="relative group">
-                <div className="input !w-14 text-center text-2xl cursor-pointer select-none">
-                  {emoji}
-                </div>
-              </div>
+              <input
+                className="input !w-14 text-center text-2xl"
+                value={emoji}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val) setEmoji(val.slice(-2));
+                }}
+                maxLength={2}
+              />
             </div>
           </div>
 
