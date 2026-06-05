@@ -94,20 +94,14 @@ export async function POST(request: Request) {
   const parsed = createGroupSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { data: group, error } = await supabase
-    .from("groups")
-    .insert({ ...parsed.data, created_by: user.id })
-    .select()
-    .single();
-
-  if (error || !group) return NextResponse.json({ error: error?.message }, { status: 500 });
-
-  // Add creator as owner
-  await supabase.from("group_members").insert({
-    group_id: group.id,
-    user_id: user.id,
-    role: "owner",
+  const { data: groupId, error } = await supabase.rpc("create_group", {
+    group_name: parsed.data.name,
+    group_emoji: parsed.data.emoji,
   });
+
+  if (error || !groupId) return NextResponse.json({ error: error?.message ?? "Failed to create group" }, { status: 500 });
+
+  const { data: group } = await supabase.from("groups").select("*").eq("id", groupId).single();
 
   return NextResponse.json({ group }, { status: 201 });
 }
