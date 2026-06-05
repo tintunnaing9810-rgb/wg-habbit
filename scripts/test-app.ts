@@ -60,33 +60,37 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 async function testAuth() {
   console.log("\n📋  AUTH");
 
-  await test("Sign up or sign in test account", async () => {
-    // Try signing in first
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
+  await test("Sign in test account", async () => {
+    // Call REST API directly to avoid JS client host-check headers
+    const APP_URL = process.env.APP_URL || "https://wg-habbit.vercel.app";
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Origin": APP_URL,
+        "Referer": APP_URL,
+        "X-Client-Info": "supabase-js-web/2.56.0",
+      },
+      body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
     });
-
-    if (signInError) {
-      // Account doesn't exist — create it
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-        options: { data: { name: "Test Bot" } },
-      });
-      if (signUpError) throw new Error(signUpError.message);
-      assert(!!signUpData.user, "No user returned from signup");
-      testUserId = signUpData.user!.id;
-      // Sign in after signup
-      const { error: reSignInError } = await supabase.auth.signInWithPassword({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      });
-      if (reSignInError) throw new Error("Could not sign in after signup: " + reSignInError.message);
-    } else {
-      assert(!!signInData.user, "No user returned from sign in");
-      testUserId = signInData.user!.id;
+    const json = await res.json();
+    if (!res.ok || !json.access_token) {
+      throw new Error(
+        (json.error_description || json.msg || JSON.stringify(json)) +
+        `\n\n  → Create the test account first:\n` +
+        `    1. Open your app → Sign up\n` +
+        `    2. Email: ${TEST_EMAIL}\n` +
+        `    3. Password: ${TEST_PASSWORD}\n` +
+        `    4. Name: Test Bot\n` +
+        `    5. Run npm test again`
+      );
     }
+    // Inject the token into the supabase client
+    await supabase.auth.setSession({ access_token: json.access_token, refresh_token: json.refresh_token });
+    testUserId = json.user?.id;
+    assert(!!testUserId, "No user ID in session response");
   });
 
   await test("Session is active", async () => {
