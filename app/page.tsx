@@ -11,16 +11,12 @@ export default async function HomePage() {
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-white">
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-8">
         {/* Nav */}
-        <nav className="flex items-center justify-between">
+        <nav className="flex items-center justify-center">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
               <CheckCircle2 className="h-4 w-4 text-white" />
             </div>
             <span className="text-base font-bold text-slate-900">Worst Generation</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/login" className="btn-ghost text-sm px-4 py-2">Log in</Link>
-            <Link href="/signup" className="btn-primary text-sm px-4 py-2">Sign up</Link>
           </div>
         </nav>
 
