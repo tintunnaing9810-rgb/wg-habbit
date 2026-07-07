@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { BarChart2, LogOut, PlusCircle } from "lucide-react";
+import { LogOut, PlusCircle, UserCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { HabitItem } from "@/components/habit-item";
 import { WeeklySummary } from "@/components/weekly-summary";
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
             title="Stats & Profile"
           >
-            <BarChart2 className="h-5 w-5" />
+            <UserCircle className="h-5 w-5" />
           </Link>
           <button
             onClick={handleSignOut}
