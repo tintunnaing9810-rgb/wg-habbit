@@ -82,9 +82,9 @@ export default function LeaderboardPage() {
         <div className="w-8" />
         <div className="w-9" />
         <div className="flex-1">Name</div>
-        <div className="w-12 text-center">Streak</div>
-        <div className="w-12 text-right">Done</div>
-        <div className="w-10 text-right">Total</div>
+        <div className="w-10 text-center">Streak</div>
+        <div className="w-10 text-right">Done</div>
+        <div className="w-8" />
       </div>
 
       {/* Table */}
