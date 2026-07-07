@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Flame, Medal, UserPlus, UserCheck } from "lucide-react";
+import Link from "next/link";
+import { Flame, Medal, UserCheck, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type LeaderboardEntry = {
@@ -69,12 +70,10 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       setCurrentUserId(user.id);
-
       const { data: follows } = await supabase
         .from("follows")
         .select("following_id")
         .eq("follower_id", user.id);
-
       setFollowing(new Set((follows ?? []).map((f) => f.following_id)));
     }
     init();
@@ -101,17 +100,13 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
     setPendingId(targetId);
     const supabase = createClient();
     const isFollowing = following.has(targetId);
-
     if (isFollowing) {
       await supabase.from("follows").delete()
         .eq("follower_id", currentUserId!)
         .eq("following_id", targetId);
       setFollowing((prev) => { const next = new Set(prev); next.delete(targetId); return next; });
     } else {
-      await supabase.from("follows").insert({
-        follower_id: currentUserId!,
-        following_id: targetId,
-      });
+      await supabase.from("follows").insert({ follower_id: currentUserId!, following_id: targetId });
       setFollowing((prev) => new Set(prev).add(targetId));
     }
     setPendingId(null);
@@ -134,37 +129,28 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
         const isFollowing = following.has(entry.user_id);
         return (
           <div key={entry.user_id} className="flex items-center gap-3 px-4 py-3.5">
-            {/* Rank */}
             <div className="w-8 shrink-0 flex justify-center">
               <RankBadge rank={rank} />
             </div>
-
-            {/* Avatar */}
-            <Avatar name={entry.name} avatarUrl={entry.avatar_url} />
-
-            {/* Name */}
+            <Link href={`/profile/${entry.user_id}`}>
+              <Avatar name={entry.name} avatarUrl={entry.avatar_url} />
+            </Link>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-900">{entry.name}</p>
+              <Link href={`/profile/${entry.user_id}`} className="truncate text-sm font-semibold text-slate-900 hover:text-indigo-600 transition-colors block">
+                {entry.name}
+              </Link>
               {isSelf && <p className="text-[10px] text-indigo-500">You</p>}
             </div>
-
-            {/* Streak */}
             <div className="flex shrink-0 flex-col items-center w-10">
               <Flame className="h-4 w-4 text-orange-500" />
               <span className="text-xs font-bold text-orange-600">{entry.best_streak}d</span>
             </div>
-
-            {/* Completion % */}
             <div className="shrink-0 w-10 text-right">
               <p className="text-sm font-bold text-indigo-600">{entry.completion_pct}%</p>
               <p className="text-[10px] text-slate-400">done</p>
             </div>
-
-            {/* Follow button */}
             <div className="shrink-0">
-              {isSelf ? (
-                <div className="w-8" />
-              ) : (
+              {isSelf ? <div className="w-8" /> : (
                 <button
                   onClick={() => toggleFollow(entry.user_id)}
                   disabled={pendingId === entry.user_id}
@@ -175,10 +161,7 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
                       : "bg-slate-100 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
-                  {isFollowing
-                    ? <UserCheck className="h-4 w-4" />
-                    : <UserPlus className="h-4 w-4" />
-                  }
+                  {isFollowing ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
                 </button>
               )}
             </div>
