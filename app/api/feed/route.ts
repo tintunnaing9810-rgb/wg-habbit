@@ -13,16 +13,7 @@ export async function GET() {
   sevenDaysAgo.setUTCDate(todayDate.getUTCDate() - 6);
   const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
-  // Get following list
-  const { data: follows } = await supabase
-    .from("follows")
-    .select("following_id")
-    .eq("follower_id", user.id);
-
-  const followingIds = (follows ?? []).map((f) => f.following_id);
-  const hasFollows = followingIds.length > 0;
-
-  let query = supabase
+  const { data: logs, error } = await supabase
     .from("habit_logs")
     .select(`
       id, log_date, quantity, created_at, habit_id, user_id,
@@ -32,22 +23,13 @@ export async function GET() {
     .gte("log_date", sevenDaysAgoStr)
     .lte("log_date", todayStr)
     .eq("habits.is_public", true)
+    .neq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50);
-
-  // Filter to followed users only (exclude own posts from "following" feed)
-  if (hasFollows) {
-    query = query.in("user_id", followingIds);
-  } else {
-    // No follows yet — show everyone except self as discovery
-    query = query.neq("user_id", user.id);
-  }
-
-  const { data: logs, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   if (!logs || logs.length === 0) {
-    return NextResponse.json({ data: [], hasFollows });
+    return NextResponse.json({ data: [] });
   }
 
   const logIds = logs.map((l) => l.id);
@@ -82,5 +64,5 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json({ data: feedData, hasFollows });
+  return NextResponse.json({ data: feedData });
 }

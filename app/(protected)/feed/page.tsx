@@ -43,7 +43,6 @@ export default function FeedPage() {
   const [activeTab, setActiveTab] = useState<PeopleTab>("feed");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasFollows, setHasFollows] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQ, setSearchQ] = useState("");
@@ -59,7 +58,6 @@ export default function FeedPage() {
       const res = await fetch("/api/feed");
       const d = await res.json();
       setItems(d.data ?? []);
-      setHasFollows(d.hasFollows ?? false);
     } catch { /* ignore */ }
     finally { setLoading(false); }
   }, []);
@@ -210,14 +208,10 @@ export default function FeedPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="card p-8 text-center">
-            <p className="text-3xl mb-3">{hasFollows ? "😴" : "👀"}</p>
-            <p className="text-sm font-medium text-slate-700">
-              {hasFollows ? "Nothing from your friends yet" : "No public check-ins yet"}
-            </p>
+            <p className="text-3xl mb-3">👀</p>
+            <p className="text-sm font-medium text-slate-700">No public check-ins yet</p>
             <p className="text-xs text-slate-500 mt-1">
-              {hasFollows
-                ? "People you follow haven't checked in recently"
-                : "Tap the search icon to find people to follow"}
+              When others log public habits, they&apos;ll show up here
             </p>
           </div>
         ) : (
