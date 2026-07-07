@@ -42,6 +42,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
 
   const [name, setName] = useState(habit?.name ?? "");
   const [emoji, setEmoji] = useState(habit?.emoji ?? "✅");
+  const [emojiInput, setEmojiInput] = useState(habit?.emoji ?? "✅");
   const [category, setCategory] = useState<HabitCategory>(habit?.category ?? "Custom");
   const [frequency, setFrequency] = useState<HabitFrequency>(habit?.frequency ?? "daily");
   const [frequencyTarget, setFrequencyTarget] = useState(habit?.frequency_target ?? 3);
@@ -116,12 +117,17 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
               <label className="label">Emoji</label>
               <input
                 className="input !w-14 text-center text-2xl"
-                value={emoji}
+                value={emojiInput}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => {
                   const val = e.target.value;
-                  if (val) setEmoji(val.slice(-2));
+                  setEmojiInput(val);
+                  const trimmed = val.trim();
+                  if (trimmed) setEmoji(trimmed.slice(-2));
                 }}
-                maxLength={2}
+                onBlur={() => {
+                  if (!emojiInput.trim()) setEmojiInput(emoji);
+                }}
               />
             </div>
           </div>
@@ -134,7 +140,7 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
                 <button
                   key={e}
                   type="button"
-                  onClick={() => setEmoji(e)}
+                  onClick={() => { setEmoji(e); setEmojiInput(e); }}
                   className={`h-9 w-9 rounded-lg text-lg transition-all ${
                     emoji === e
                       ? "bg-indigo-100 ring-2 ring-indigo-500"
