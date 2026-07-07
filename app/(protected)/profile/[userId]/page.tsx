@@ -170,7 +170,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  <span className="text-xs font-bold text-orange-600">{h.current_streak}d</span>
+                  <span className="text-xs font-bold text-orange-600">{h.current_streak}{h.frequency === "x_per_week" ? "w" : "d"}</span>
                 </div>
               </div>
             ))}

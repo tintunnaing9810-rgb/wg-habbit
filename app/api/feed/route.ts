@@ -8,12 +8,8 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const todayStr = getIctDateString();
-  const todayDate = new Date(todayStr + "T00:00:00Z");
-  const sevenDaysAgo = new Date(todayDate);
-  sevenDaysAgo.setUTCDate(todayDate.getUTCDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
-  // Get public habit logs from last 7 days
+  // Get all public habit logs for today
   const { data: logs, error } = await supabase
     .from("habit_logs")
     .select(`
@@ -34,8 +30,7 @@ export async function GET() {
         avatar_url
       )
     `)
-    .gte("log_date", sevenDaysAgoStr)
-    .lte("log_date", todayStr)
+    .eq("log_date", todayStr)
     .eq("habits.is_public", true)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -79,6 +74,7 @@ export async function GET() {
       log_date: log.log_date,
       created_at: log.created_at,
       quantity: log.quantity,
+      user_id: log.user_id,
       habit: {
         name: habit?.name ?? "",
         emoji: habit?.emoji ?? "✅",

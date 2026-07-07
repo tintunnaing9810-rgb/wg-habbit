@@ -76,25 +76,28 @@ export default function StatsPage() {
 
       const habits: Habit[] = habitsJson.habits?.map((h: { habit: Habit }) => h.habit) ?? [];
 
-      const habitStats: HabitStats[] = await Promise.all(
-        habits.map(async (habit) => {
-          const { data: logs } = await supabase
+      const habitIds = habits.map((h) => h.id);
+      const { data: allLogs } = habitIds.length > 0
+        ? await supabase
             .from("habit_logs")
-            .select("log_date")
-            .eq("habit_id", habit.id)
-            .in("log_date", last7Dates);
+            .select("log_date, habit_id")
+            .in("habit_id", habitIds)
+            .in("log_date", last7Dates)
+        : { data: [] };
 
-          const loggedDates = new Set((logs ?? []).map((l: HabitLog) => l.log_date));
+      const logsByHabit = new Map<string, Set<string>>();
+      for (const log of (allLogs ?? []) as HabitLog[]) {
+        if (!logsByHabit.has(log.habit_id)) logsByHabit.set(log.habit_id, new Set());
+        logsByHabit.get(log.habit_id)!.add(log.log_date);
+      }
 
-          return {
-            habit,
-            last7Days: last7Dates.map((date) => ({
-              date,
-              logged: loggedDates.has(date),
-            })),
-          };
-        }),
-      );
+      const habitStats: HabitStats[] = habits.map((habit) => ({
+        habit,
+        last7Days: last7Dates.map((date) => ({
+          date,
+          logged: logsByHabit.get(habit.id)?.has(date) ?? false,
+        })),
+      }));
 
       const displayName = userData?.name ?? "User";
       setUserName(displayName);
