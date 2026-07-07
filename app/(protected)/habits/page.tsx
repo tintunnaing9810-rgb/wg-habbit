@@ -55,7 +55,10 @@ export default function HabitsPage() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error ?? "Failed to save habit.");
+      const msg = typeof err.error === "string"
+        ? err.error
+        : err.error?.message ?? JSON.stringify(err.error) ?? "Failed to save habit.";
+      throw new Error(msg);
     }
 
     setShowForm(false);

@@ -250,27 +250,29 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
             </button>
           </div>
 
-          {error && (
-            <p className="rounded-lg px-4 py-3 text-sm bg-red-50 text-red-700 border border-red-200">
-              {error}
-            </p>
-          )}
         </form>
 
         {/* Footer */}
-        <div className="flex gap-2 border-t border-slate-100 px-5 py-4">
-          <button type="button" onClick={onClose} className="btn-ghost flex-1">
-            Cancel
-          </button>
-          <button
-            form="habit-form"
-            type="submit"
-            disabled={pending}
-            className="btn-primary flex-1"
-          >
-            {pending && <LoaderCircle className="h-4 w-4 animate-spin" />}
-            {pending ? "Saving..." : habit ? "Save Changes" : "Add Habit"}
-          </button>
+        <div className="flex flex-col gap-2 border-t border-slate-100 px-5 py-4">
+          {error && (
+            <p className="rounded-lg px-4 py-2.5 text-sm bg-red-50 text-red-700 border border-red-200">
+              {error}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className="btn-ghost flex-1">
+              Cancel
+            </button>
+            <button
+              form="habit-form"
+              type="submit"
+              disabled={pending}
+              className="btn-primary flex-1"
+            >
+              {pending && <LoaderCircle className="h-4 w-4 animate-spin" />}
+              {pending ? "Saving..." : habit ? "Save Changes" : "Add Habit"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
