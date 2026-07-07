@@ -40,7 +40,7 @@ export async function GET() {
       const userLogs = (logCounts ?? []).filter((l) => l.user_id === u.id);
       const totalCheckins = userLogs.length;
 
-      const bestStreak = Math.max(0, ...userHabits.map((h) => h.current_streak));
+      const bestStreak = Math.max(0, ...userHabits.map((h) => h.best_streak));
 
       // Compute completion %: actual logs / expected logs since each habit was created
       let totalExpected = 0;

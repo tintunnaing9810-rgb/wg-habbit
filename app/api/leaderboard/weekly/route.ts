@@ -29,7 +29,7 @@ export async function GET() {
   // Get active habits
   const { data: habits } = await supabase
     .from("habits")
-    .select("id, user_id, frequency, frequency_target, current_streak, is_active")
+    .select("id, user_id, frequency, frequency_target, current_streak, best_streak, is_active")
     .in("user_id", userIds)
     .eq("is_active", true);
 
@@ -49,7 +49,7 @@ export async function GET() {
       const userWeekLogs = (weekLogs ?? []).filter((l) => l.user_id === u.id);
       const totalCheckins = userWeekLogs.length;
 
-      const bestStreak = Math.max(0, ...userHabits.map((h) => h.current_streak));
+      const bestStreak = Math.max(0, ...userHabits.map((h) => h.best_streak));
 
       // This week: expected vs actual
       let weeklyDue = 0;

@@ -82,7 +82,7 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
       .channel(`leaderboard-${type}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "habit_logs" },
+        { event: "*", schema: "public", table: "habit_logs" },
         () => {
           fetch(`/api/leaderboard${type === "weekly" ? "/weekly" : ""}`)
             .then((r) => r.json())
@@ -98,17 +98,17 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
   async function toggleFollow(targetId: string) {
     if (pendingId) return;
     setPendingId(targetId);
-    const supabase = createClient();
     const isFollowing = following.has(targetId);
-    if (isFollowing) {
-      await supabase.from("follows").delete()
-        .eq("follower_id", currentUserId!)
-        .eq("following_id", targetId);
-      setFollowing((prev) => { const next = new Set(prev); next.delete(targetId); return next; });
-    } else {
-      await supabase.from("follows").insert({ follower_id: currentUserId!, following_id: targetId });
-      setFollowing((prev) => new Set(prev).add(targetId));
-    }
+    await fetch("/api/follows", {
+      method: isFollowing ? "DELETE" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ following_id: targetId }),
+    });
+    setFollowing((prev) => {
+      const next = new Set(prev);
+      if (isFollowing) next.delete(targetId); else next.add(targetId);
+      return next;
+    });
     setPendingId(null);
   }
 
@@ -143,7 +143,7 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
             </div>
             <div className="flex shrink-0 flex-col items-center w-10">
               <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-xs font-bold text-orange-600">{entry.best_streak}d</span>
+              <span className="text-xs font-bold text-orange-600">{entry.best_streak}</span>
             </div>
             <div className="shrink-0 w-10 text-right">
               <p className="text-sm font-bold text-indigo-600">{entry.completion_pct}%</p>
