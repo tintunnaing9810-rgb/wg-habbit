@@ -268,13 +268,13 @@ export function HabitForm({ habit, onSave, onClose }: HabitFormProps) {
             <button
               type="button"
               onClick={() => setIsPublic(!isPublic)}
-              className={`relative h-6 w-11 rounded-full transition-colors ${
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors ${
                 isPublic ? "bg-indigo-600" : "bg-slate-200"
               }`}
             >
               <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  isPublic ? "translate-x-5" : "translate-x-0.5"
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  isPublic ? "translate-x-5" : "translate-x-0"
                 }`}
               />
             </button>

@@ -6,19 +6,36 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: following } = await supabase
-    .from("follows")
-    .select("following_id")
-    .eq("follower_id", user.id);
+  const [{ data: followingRows }, { data: followerRows }] = await Promise.all([
+    supabase.from("follows").select("following_id").eq("follower_id", user.id),
+    supabase.from("follows").select("follower_id").eq("following_id", user.id),
+  ]);
 
-  const { data: followers } = await supabase
-    .from("follows")
-    .select("follower_id")
-    .eq("following_id", user.id);
+  const followingIds = (followingRows ?? []).map((f) => f.following_id);
+  const followerIds = (followerRows ?? []).map((f) => f.follower_id);
+
+  const allIds = [...new Set([...followingIds, ...followerIds])];
+
+  let profileMap: Record<string, { id: string; name: string; avatar_url: string | null }> = {};
+  if (allIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("users")
+      .select("id, name, avatar_url")
+      .in("id", allIds);
+    for (const p of profiles ?? []) profileMap[p.id] = p;
+  }
+
+  const followingSet = new Set(followingIds);
 
   return NextResponse.json({
-    following: (following ?? []).map((f) => f.following_id),
-    followers: (followers ?? []).map((f) => f.follower_id),
+    following: followingIds.map((id) => ({
+      ...(profileMap[id] ?? { id, name: "Unknown", avatar_url: null }),
+      is_following: true,
+    })),
+    followers: followerIds.map((id) => ({
+      ...(profileMap[id] ?? { id, name: "Unknown", avatar_url: null }),
+      is_following: followingSet.has(id),
+    })),
   });
 }
 
