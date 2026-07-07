@@ -8,10 +8,6 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const todayStr = getIctDateString();
-  const todayDate = new Date(todayStr + "T00:00:00Z");
-  const sevenDaysAgo = new Date(todayDate);
-  sevenDaysAgo.setUTCDate(todayDate.getUTCDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
   const { data: logs, error } = await supabase
     .from("habit_logs")
@@ -20,10 +16,8 @@ export async function GET() {
       habits!inner ( name, emoji, category, is_public ),
       users ( name, avatar_url )
     `)
-    .gte("log_date", sevenDaysAgoStr)
-    .lte("log_date", todayStr)
+    .eq("log_date", todayStr)
     .eq("habits.is_public", true)
-    .neq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
