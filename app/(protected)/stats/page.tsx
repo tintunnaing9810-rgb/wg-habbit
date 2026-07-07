@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BarChart2, Flame } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { BarChart2, Flame, LogOut } from "lucide-react";
 import { AvatarUpload } from "@/components/avatar-upload";
 import { WeeklySummary } from "@/components/weekly-summary";
 import { createClient } from "@/lib/supabase/client";
@@ -45,6 +46,13 @@ export default function StatsPage() {
   const [editingName, setEditingName] = useState(false);
   const [namePending, setNamePending] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -58,7 +66,6 @@ export default function StatsPage() {
       const userId = userRes.data.user?.id;
       if (!userId) return;
 
-      // Get last 7 days logs for each habit
       const { data: userData } = await supabase
         .from("users")
         .select("*")
@@ -78,11 +85,8 @@ export default function StatsPage() {
 
       const habitIds = habits.map((h) => h.id);
       const { data: allLogs } = habitIds.length > 0
-        ? await supabase
-            .from("habit_logs")
-            .select("log_date, habit_id")
-            .in("habit_id", habitIds)
-            .in("log_date", last7Dates)
+        ? await supabase.from("habit_logs").select("log_date, habit_id")
+            .in("habit_id", habitIds).in("log_date", last7Dates)
         : { data: [] };
 
       const logsByHabit = new Map<string, Set<string>>();
@@ -131,16 +135,25 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="px-4 py-6 space-y-6">
+    <div className="px-4 pt-3 pb-6 space-y-4">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
-          <BarChart2 className="h-5 w-5 text-indigo-600" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
+            <BarChart2 className="h-5 w-5 text-indigo-600" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900">My Stats</h1>
+            <p className="text-sm text-slate-500">Your progress overview</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">My Stats</h1>
-          <p className="text-sm text-slate-500">Your progress overview</p>
-        </div>
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </button>
       </div>
 
       {/* Profile section */}

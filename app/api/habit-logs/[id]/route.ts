@@ -62,26 +62,18 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   let newStreak = Math.max(0, currentStreak - 1);
 
   if (habitData?.frequency === "x_per_week") {
-    // For x_per_week: only decrement if this log was the quota-completing log.
-    // If remaining logs this week still meet quota, don't touch the streak.
     const todayDate = new Date(todayStr + "T00:00:00Z");
     const dow = todayDate.getUTCDay() || 7;
     const weekStart = new Date(todayDate);
     weekStart.setUTCDate(todayDate.getUTCDate() - (dow - 1));
     const weekStartStr = weekStart.toISOString().split("T")[0];
-
     const { data: remainingWeekLogs } = await supabase
-      .from("habit_logs")
-      .select("id")
+      .from("habit_logs").select("id")
       .eq("habit_id", log.habit_id)
-      .gte("log_date", weekStartStr)
-      .lte("log_date", todayStr);
-
-    const remainingCount = remainingWeekLogs?.length ?? 0;
-    if (remainingCount >= habitData.frequency_target) {
-      newStreak = currentStreak; // quota still met — streak unchanged
+      .gte("log_date", weekStartStr).lte("log_date", todayStr);
+    if ((remainingWeekLogs?.length ?? 0) >= habitData.frequency_target) {
+      newStreak = currentStreak;
     }
-    // else: this was the completing log, decrement (already set above)
   }
 
   await supabase

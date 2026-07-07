@@ -41,6 +41,7 @@ export type Database = {
           frequency_target: number;
           target_type: 'yes_no' | 'quantity';
           target_quantity: number | null;
+          target_unit: string | null;
           is_public: boolean;
           current_streak: number;
           best_streak: number;
@@ -58,6 +59,7 @@ export type Database = {
           frequency_target?: number;
           target_type: 'yes_no' | 'quantity';
           target_quantity?: number | null;
+          target_unit?: string | null;
           is_public?: boolean;
           current_streak?: number;
           best_streak?: number;
@@ -72,6 +74,7 @@ export type Database = {
           frequency_target?: number;
           target_type?: 'yes_no' | 'quantity';
           target_quantity?: number | null;
+          target_unit?: string | null;
           is_public?: boolean;
           current_streak?: number;
           best_streak?: number;
@@ -152,3 +155,37 @@ export type User = Database['public']['Tables']['users']['Row'];
 export type Habit = Database['public']['Tables']['habits']['Row'];
 export type HabitLog = Database['public']['Tables']['habit_logs']['Row'];
 export type HabitReaction = Database['public']['Tables']['habit_reactions']['Row'];
+
+export type Follow = { follower_id: string; following_id: string; created_at: string };
+
+export type Group = {
+  id: string;
+  name: string;
+  emoji: string;
+  invite_code: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type GroupMember = {
+  group_id: string;
+  user_id: string;
+  role: 'owner' | 'member';
+  joined_at: string;
+};
+
+export type GroupHabit = {
+  id: string;
+  group_id: string;
+  name: string;
+  emoji: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type GroupHabitLog = {
+  group_habit_id: string;
+  user_id: string;
+  log_date: string;
+  created_at: string;
+};
