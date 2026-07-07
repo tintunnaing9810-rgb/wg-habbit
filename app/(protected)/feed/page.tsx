@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { Activity, Search, UserCheck, UserPlus, X } from "lucide-react";
 import { FeedCard } from "@/components/feed-card";
 import { createClient } from "@/lib/supabase/client";
@@ -223,6 +224,7 @@ export default function FeedPage() {
                 logDate={item.log_date}
                 createdAt={item.created_at}
                 quantity={item.quantity}
+                userId={item.user_id}
                 habit={item.habit}
                 user={item.user}
                 reactions={item.reactions}
@@ -251,8 +253,8 @@ export default function FeedPage() {
           <div className="card divide-y divide-slate-100 overflow-hidden">
             {following.map((u) => (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
-                <Avatar name={u.name} avatarUrl={u.avatar_url} />
-                <p className="flex-1 text-sm font-semibold text-slate-900 truncate">{u.name}</p>
+                <Link href={`/profile/${u.id}`}><Avatar name={u.name} avatarUrl={u.avatar_url} /></Link>
+                <Link href={`/profile/${u.id}`} className="flex-1 text-sm font-semibold text-slate-900 truncate hover:text-indigo-600">{u.name}</Link>
                 <button
                   onClick={() => toggleFollowPeople(u.id, true)}
                   className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all"
@@ -284,8 +286,8 @@ export default function FeedPage() {
           <div className="card divide-y divide-slate-100 overflow-hidden">
             {followers.map((u) => (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
-                <Avatar name={u.name} avatarUrl={u.avatar_url} />
-                <p className="flex-1 text-sm font-semibold text-slate-900 truncate">{u.name}</p>
+                <Link href={`/profile/${u.id}`}><Avatar name={u.name} avatarUrl={u.avatar_url} /></Link>
+                <Link href={`/profile/${u.id}`} className="flex-1 text-sm font-semibold text-slate-900 truncate hover:text-indigo-600">{u.name}</Link>
                 <button
                   onClick={() => toggleFollowPeople(u.id, u.is_following)}
                   className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${

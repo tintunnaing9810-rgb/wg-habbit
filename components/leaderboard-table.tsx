@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Flame, Medal, UserCheck, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -131,9 +132,13 @@ export function LeaderboardTable({ initialData, type }: LeaderboardTableProps) {
             <div className="w-8 shrink-0 flex justify-center">
               <RankBadge rank={rank} />
             </div>
-            <Avatar name={entry.name} avatarUrl={entry.avatar_url} />
+            <Link href={`/profile/${entry.user_id}`}>
+              <Avatar name={entry.name} avatarUrl={entry.avatar_url} />
+            </Link>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-900">{entry.name}</p>
+              <Link href={`/profile/${entry.user_id}`} className="truncate text-sm font-semibold text-slate-900 hover:text-indigo-600 transition-colors block">
+                {entry.name}
+              </Link>
               {isSelf && <p className="text-[10px] text-indigo-500">You</p>}
             </div>
             <div className="flex shrink-0 flex-col items-center w-10">

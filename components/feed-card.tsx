@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
 type Reaction = {
@@ -13,6 +14,7 @@ type FeedCardProps = {
   logDate: string;
   createdAt: string;
   quantity: number | null;
+  userId: string;
   habit: { name: string; emoji: string; category: string };
   user: { name: string; avatar_url: string | null };
   reactions: Reaction[];
@@ -48,6 +50,7 @@ export function FeedCard({
   logId,
   createdAt,
   quantity,
+  userId,
   habit,
   user,
   reactions: initialReactions,
@@ -84,10 +87,14 @@ export function FeedCard({
     <div className="card p-4">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <Avatar name={user.name} avatarUrl={user.avatar_url} />
+        <Link href={`/profile/${userId}`}>
+          <Avatar name={user.name} avatarUrl={user.avatar_url} />
+        </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+            <Link href={`/profile/${userId}`} className="text-sm font-semibold text-slate-900 hover:text-indigo-600 transition-colors">
+              {user.name}
+            </Link>
             <span className="text-xs text-slate-400">{timeAgo}</span>
           </div>
           <div className="mt-1 flex items-center gap-2">
