@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { BarChart2, LogOut, PlusCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { HabitItem } from "@/components/habit-item";
 import { WeeklySummary } from "@/components/weekly-summary";
 import { getIctDateString } from "@/lib/habits";
@@ -41,6 +42,12 @@ function formatTodayICT(): string {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -83,15 +90,31 @@ export default function DashboardPage() {
 
   return (
     <div className="px-4 pt-3 pb-6 space-y-4">
-      {/* Header */}
-      <div>
-        <p className="text-sm text-slate-500">{formatTodayICT()}</p>
-        <h1 className="mt-0.5 text-xl font-bold text-slate-900">
-          {getGreeting()}{data?.userName ? `, ${data.userName.split(" ")[0]}` : ""}
-        </h1>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-slate-500">{formatTodayICT()}</p>
+          <h1 className="mt-0.5 text-xl font-bold text-slate-900">
+            {getGreeting()}{data?.userName ? `, ${data.userName.split(" ")[0]}` : ""}
+          </h1>
+        </div>
+        <div className="flex items-center gap-1 mt-1">
+          <Link
+            href="/stats"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+            title="Stats & Profile"
+          >
+            <BarChart2 className="h-5 w-5" />
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            title="Sign out"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
-      {/* Weekly summary */}
       {data && (
         <WeeklySummary
           totalDue={data.weeklyDue}
@@ -100,7 +123,6 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Habits checklist */}
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -119,12 +141,9 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Today's date */}
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
             Today · {todayStr}
           </p>
-
-          {/* Incomplete habits */}
           {(incomplete as HabitWithLog[]).map(({ habit, todayLog }) => (
             <HabitItem
               key={habit.id}
@@ -134,8 +153,6 @@ export default function DashboardPage() {
               onUndo={handleUndo}
             />
           ))}
-
-          {/* Completed habits */}
           {completed.length > 0 && (
             <>
               {incomplete.length > 0 && (
@@ -154,7 +171,6 @@ export default function DashboardPage() {
               ))}
             </>
           )}
-
           {incomplete.length === 0 && completed.length > 0 && (
             <div className="card p-4 text-center bg-green-50 border-green-200">
               <p className="text-2xl mb-1">🎉</p>
