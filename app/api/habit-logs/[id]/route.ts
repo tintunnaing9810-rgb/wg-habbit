@@ -15,7 +15,7 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   // Find the log
   const { data: log, error: findError } = await supabase
     .from("habit_logs")
-    .select("*, habits(current_streak, best_streak, last_logged_date, frequency)")
+    .select("*, habits(current_streak, best_streak, last_logged_date, frequency, frequency_target)")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -50,16 +50,31 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
     .limit(1)
     .single();
 
-  // Recalculate streak conservatively: just decrement if > 0
-  // More accurate would be to recompute from scratch, but decrement is safe for undo
   const habitData = (log.habits as unknown) as {
     current_streak: number;
     best_streak: number;
     last_logged_date: string | null;
+    frequency: string;
+    frequency_target: number;
   } | null;
 
   const currentStreak = habitData?.current_streak ?? 0;
-  const newStreak = Math.max(0, currentStreak - 1);
+  let newStreak = Math.max(0, currentStreak - 1);
+
+  if (habitData?.frequency === "x_per_week") {
+    const todayDate = new Date(todayStr + "T00:00:00Z");
+    const dow = todayDate.getUTCDay() || 7;
+    const weekStart = new Date(todayDate);
+    weekStart.setUTCDate(todayDate.getUTCDate() - (dow - 1));
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    const { data: remainingWeekLogs } = await supabase
+      .from("habit_logs").select("id")
+      .eq("habit_id", log.habit_id)
+      .gte("log_date", weekStartStr).lte("log_date", todayStr);
+    if ((remainingWeekLogs?.length ?? 0) >= habitData.frequency_target) {
+      newStreak = currentStreak;
+    }
+  }
 
   await supabase
     .from("habits")

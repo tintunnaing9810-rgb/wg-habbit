@@ -82,6 +82,21 @@ export type Database = {
           is_active?: boolean;
         };
       };
+      follows: {
+        Row: {
+          id: string;
+          follower_id: string;
+          following_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          follower_id: string;
+          following_id: string;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+      };
       habit_logs: {
         Row: {
           id: string;

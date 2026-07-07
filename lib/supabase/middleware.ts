@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import type { Database } from "@/types/database";
 
-const protectedRoutes = ["/dashboard", "/habits", "/leaderboard", "/feed", "/stats"];
+const protectedRoutes = ["/dashboard", "/habits", "/leaderboard", "/feed", "/stats", "/profile", "/groups"];
 
 function matchesRoute(pathname: string, route: string) {
   return pathname === route || pathname.startsWith(`${route}/`);
