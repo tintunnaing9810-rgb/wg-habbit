@@ -110,6 +110,12 @@ export default function GroupDetailPage({ params }: { params: Promise<{ id: stri
     router.push("/groups");
   }
 
+  async function handleDeleteGroup() {
+    if (!confirm("Delete this group? This cannot be undone.")) return;
+    const res = await fetch(`/api/groups/${id}`, { method: "DELETE" });
+    if (res.ok) router.push("/groups");
+  }
+
   function copyCode() {
     if (!data) return;
     navigator.clipboard.writeText(data.group.invite_code);
@@ -308,8 +314,12 @@ export default function GroupDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Leave group */}
-      {!isOwner && (
+      {/* Leave / Delete group */}
+      {isOwner ? (
+        <button onClick={handleDeleteGroup} className="btn-danger w-full text-sm">
+          Delete group
+        </button>
+      ) : (
         <button onClick={handleLeave} className="btn-danger w-full text-sm">
           Leave group
         </button>
