@@ -68,31 +68,50 @@ export async function GET() {
   // Get this week's logs for x_per_week tracking
   const { data: weekLogs } = await supabase
     .from("habit_logs")
-    .select("habit_id, log_date")
+    .select("habit_id, log_date, quantity")
     .eq("user_id", user.id)
     .gte("log_date", weekStartStr)
     .lte("log_date", weekEndStr);
 
   const todayLogMap = new Map((todayLogs ?? []).map((l) => [l.habit_id, l]));
-  const weekLogCounts = new Map<string, number>();
+
+  // Group week logs by habit
+  const weekLogsByHabit = new Map<string, { log_date: string; quantity: number | null }[]>();
   for (const log of weekLogs ?? []) {
-    weekLogCounts.set(log.habit_id, (weekLogCounts.get(log.habit_id) ?? 0) + 1);
+    if (!weekLogsByHabit.has(log.habit_id)) weekLogsByHabit.set(log.habit_id, []);
+    weekLogsByHabit.get(log.habit_id)!.push(log);
   }
 
-  const habitsWithLogs = habits.map((habit) => ({
-    habit,
-    todayLog: todayLogMap.get(habit.id) ?? null,
-  }));
+  const habitsWithLogs = habits.map((habit) => {
+    const log = todayLogMap.get(habit.id) ?? null;
+    const todayQuantity = log?.quantity ?? 0;
+    // For quantity habits, only mark done when cumulative total >= target
+    const isQuantityDone = habit.target_type === "quantity" && habit.target_quantity != null
+      ? todayQuantity >= habit.target_quantity
+      : true;
+    return {
+      habit,
+      todayLog: log && isQuantityDone ? log : null,
+      todayQuantity: habit.target_type === "quantity" ? todayQuantity : undefined,
+    };
+  });
 
   // Weekly summary: count expected vs completed for this week
   let weeklyDue = 0;
   let weeklyCompleted = 0;
 
   for (const habit of habits) {
-    const weekCount = weekLogCounts.get(habit.id) ?? 0;
+    const habitWeekLogs = weekLogsByHabit.get(habit.id) ?? [];
+    // A log counts as completed only if quantity target is met (for quantity habits)
+    const isLogComplete = (log: { quantity: number | null }) =>
+      habit.target_type === "quantity" && habit.target_quantity != null
+        ? (log.quantity ?? 0) >= habit.target_quantity
+        : true;
+    const completedWeekLogs = habitWeekLogs.filter(isLogComplete);
+
     if (habit.frequency === "x_per_week") {
       weeklyDue += habit.frequency_target;
-      weeklyCompleted += Math.min(weekCount, habit.frequency_target);
+      weeklyCompleted += Math.min(completedWeekLogs.length, habit.frequency_target);
     } else {
       // Count days from week start to today
       const start = new Date(weekStartStr + "T00:00:00Z");
@@ -102,7 +121,7 @@ export async function GET() {
         if (habit.frequency === "weekdays" && (dowD === 0 || dowD === 6)) continue;
         weeklyDue++;
       }
-      weeklyCompleted += weekCount;
+      weeklyCompleted += completedWeekLogs.length;
     }
   }
 

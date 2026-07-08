@@ -9,16 +9,20 @@ import type { Habit, HabitLog } from "@/types/database";
 type HabitItemProps = {
   habit: Habit;
   todayLog: HabitLog | null;
+  todayQuantity?: number;
   onCheckIn: (habitId: string, quantity?: number) => Promise<void>;
   onUndo: (logId: string) => Promise<void>;
 };
 
-export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps) {
+export function HabitItem({ habit, todayLog, todayQuantity = 0, onCheckIn, onUndo }: HabitItemProps) {
   const [pending, setPending] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>("");
   const [showQuantityInput, setShowQuantityInput] = useState(false);
 
   const isCompleted = todayLog !== null;
+  const isQuantityHabit = habit.target_type === "quantity";
+  const hasPartialProgress = isQuantityHabit && !isCompleted && todayQuantity > 0;
+  const remaining = isQuantityHabit && habit.target_quantity ? habit.target_quantity - todayQuantity : 0;
 
   async function handleCheck() {
     if (isCompleted) return;
@@ -66,11 +70,12 @@ export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps
         </div>
         <p className="text-xs text-slate-400 mt-0.5">
           {habit.category}
-          {habit.target_type === "quantity" && habit.target_quantity
-            ? ` · ${habit.target_quantity} ${habit.target_unit ?? ""} goal`
-            : ""}
-          {isCompleted && todayLog?.quantity != null
-            ? ` · logged ${todayLog.quantity} ${habit.target_unit ?? ""}`
+          {isQuantityHabit && habit.target_quantity
+            ? hasPartialProgress
+              ? ` · ${todayQuantity} / ${habit.target_quantity} ${habit.target_unit ?? ""}`
+              : isCompleted
+                ? ` · ${todayQuantity} ${habit.target_unit ?? ""} done`
+                : ` · ${habit.target_quantity} ${habit.target_unit ?? ""} goal`
             : ""}
         </p>
 
@@ -83,7 +88,7 @@ export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps
                 min={1}
                 value={quantityInput}
                 onChange={(e) => setQuantityInput(e.target.value)}
-                placeholder={String(habit.target_quantity ?? "0")}
+                placeholder={hasPartialProgress ? String(remaining) : String(habit.target_quantity ?? "0")}
                 className="input !w-24 !py-1.5 !text-sm"
                 autoFocus
                 onKeyDown={(e) => {
@@ -103,7 +108,7 @@ export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps
               disabled={pending || !quantityInput}
               className="btn-primary !py-1.5 !px-3 text-xs"
             >
-              Log
+              {hasPartialProgress ? "Add" : "Log"}
             </button>
             <button
               onClick={() => {
@@ -129,6 +134,19 @@ export function HabitItem({ habit, todayLog, onCheckIn, onUndo }: HabitItemProps
             title="Undo check-in"
           >
             <RotateCcw className="h-4 w-4" />
+          </button>
+        ) : hasPartialProgress ? (
+          <button
+            onClick={handleCheck}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all",
+              showQuantityInput
+                ? "border-indigo-600 bg-indigo-50"
+                : "border-indigo-300 bg-indigo-50 hover:border-indigo-500",
+            )}
+            title="Log more"
+          >
+            <Check className="h-4 w-4 text-indigo-400" />
           </button>
         ) : (
           <button

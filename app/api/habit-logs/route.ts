@@ -37,10 +37,78 @@ export async function POST(request: Request) {
   // Check for existing log today
   const { data: existingLog } = await supabase
     .from("habit_logs")
-    .select("id")
+    .select("*")
     .eq("habit_id", habit_id)
     .eq("log_date", todayStr)
     .single();
+
+  // For quantity habits: accumulate instead of blocking
+  if (existingLog && habit.target_type === "quantity") {
+    const prevTotal = existingLog.quantity ?? 0;
+    const newTotal = prevTotal + (quantity ?? 0);
+
+    const { data: updatedLog, error: updateError } = await supabase
+      .from("habit_logs")
+      .update({ quantity: newTotal })
+      .eq("id", existingLog.id)
+      .select()
+      .single();
+
+    if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
+
+    // Only update streak when crossing the target threshold for the first time
+    if (habit.target_quantity && newTotal >= habit.target_quantity && prevTotal < habit.target_quantity) {
+      const { data: userRecord } = await supabase
+        .from("users").select("grace_week_year, grace_week_num").eq("id", user.id).single();
+      const { year: currentYear, week: currentWeek } = getIsoWeek(todayStr);
+      const graceUsedThisWeek =
+        userRecord?.grace_week_year === currentYear && userRecord?.grace_week_num === currentWeek;
+
+      let newStreak = habit.current_streak;
+      let newBestStreak = habit.best_streak;
+
+      if (habit.frequency === "x_per_week") {
+        const todayDate = new Date(todayStr + "T00:00:00Z");
+        const dow = todayDate.getUTCDay() || 7;
+        const weekStart = new Date(todayDate);
+        weekStart.setUTCDate(todayDate.getUTCDate() - (dow - 1));
+        const weekStartStr = weekStart.toISOString().split("T")[0];
+        const { data: weekLogs } = await supabase.from("habit_logs").select("id")
+          .eq("habit_id", habit_id).gte("log_date", weekStartStr).lte("log_date", todayStr);
+        const weekCount = weekLogs?.length ?? 0; // current log already exists
+        if (weekCount === habit.frequency_target) {
+          const prevWeekEnd = new Date(weekStart);
+          prevWeekEnd.setUTCDate(weekStart.getUTCDate() - 1);
+          const prevWeekEndStr = prevWeekEnd.toISOString().split("T")[0];
+          const prevWeekStart = new Date(prevWeekEnd);
+          prevWeekStart.setUTCDate(prevWeekEnd.getUTCDate() - 6);
+          const { data: prevWeekLogs } = await supabase.from("habit_logs").select("id")
+            .eq("habit_id", habit_id)
+            .gte("log_date", prevWeekStart.toISOString().split("T")[0])
+            .lte("log_date", prevWeekEndStr);
+          newStreak = (prevWeekLogs?.length ?? 0) >= habit.frequency_target ? habit.current_streak + 1 : 1;
+          newBestStreak = Math.max(newBestStreak, newStreak);
+        }
+      } else {
+        const streakUpdate = computeStreakUpdate(habit.frequency, habit.current_streak, habit.last_logged_date, todayStr, graceUsedThisWeek);
+        newStreak = streakUpdate.newStreak;
+        newBestStreak = Math.max(habit.best_streak, newStreak);
+        if (streakUpdate.useGrace) {
+          await supabase.from("users").update({ grace_week_year: currentYear, grace_week_num: currentWeek }).eq("id", user.id);
+        }
+      }
+
+      await supabase.from("habits").update({
+        current_streak: newStreak,
+        best_streak: newBestStreak,
+        last_logged_date: todayStr,
+      }).eq("id", habit_id);
+
+      return NextResponse.json({ log: updatedLog, streak: newStreak, bestStreak: newBestStreak }, { status: 200 });
+    }
+
+    return NextResponse.json({ log: updatedLog, streak: habit.current_streak, bestStreak: habit.best_streak }, { status: 200 });
+  }
 
   if (existingLog) {
     return NextResponse.json({ error: "Already checked in today" }, { status: 409 });

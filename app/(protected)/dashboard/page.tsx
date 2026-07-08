@@ -12,6 +12,7 @@ import type { Habit, HabitLog } from "@/types/database";
 type HabitWithLog = {
   habit: Habit;
   todayLog: HabitLog | null;
+  todayQuantity?: number;
 };
 
 type DashboardData = {
@@ -144,11 +145,12 @@ export default function DashboardPage() {
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
             Today · {todayStr}
           </p>
-          {(incomplete as HabitWithLog[]).map(({ habit, todayLog }) => (
+          {(incomplete as HabitWithLog[]).map(({ habit, todayLog, todayQuantity }) => (
             <HabitItem
               key={habit.id}
               habit={habit}
               todayLog={todayLog}
+              todayQuantity={todayQuantity}
               onCheckIn={handleCheckIn}
               onUndo={handleUndo}
             />
@@ -160,11 +162,12 @@ export default function DashboardPage() {
                   Completed
                 </p>
               )}
-              {(completed as HabitWithLog[]).map(({ habit, todayLog }) => (
+              {(completed as HabitWithLog[]).map(({ habit, todayLog, todayQuantity }) => (
                 <HabitItem
                   key={habit.id}
                   habit={habit}
                   todayLog={todayLog}
+                  todayQuantity={todayQuantity}
                   onCheckIn={handleCheckIn}
                   onUndo={handleUndo}
                 />
