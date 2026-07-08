@@ -47,10 +47,12 @@ export async function POST(request: Request) {
     const prevTotal = existingLog.quantity ?? 0;
     const newTotal = prevTotal + (quantity ?? 0);
 
+    // Delete the old log and re-insert with the accumulated total.
+    // This avoids needing an UPDATE RLS policy on habit_logs.
+    await supabase.from("habit_logs").delete().eq("id", existingLog.id);
     const { data: updatedLog, error: updateError } = await supabase
       .from("habit_logs")
-      .update({ quantity: newTotal })
-      .eq("id", existingLog.id)
+      .insert({ habit_id, user_id: user.id, log_date: todayStr, quantity: newTotal })
       .select()
       .single();
 
